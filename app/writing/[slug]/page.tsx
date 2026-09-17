@@ -5,12 +5,12 @@ import { Button, Eyebrow, Icon, Tag } from "@/lib/ds";
 import { Blocks } from "@/lib/blocks";
 import {
   mdToBlocks,
-  paperBySlug,
   postBySlug,
   publishedPosts,
   siblings,
   toc
 } from "@/lib/content";
+import { paperBySlug } from "@/lib/papers";
 import { fmtDate, readingTime } from "@/lib/formatting";
 
 export function generateStaticParams() {
@@ -35,7 +35,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   const blocks = mdToBlocks(post.body);
   const headings = toc(post.body);
-  const related = post.paperSlug ? paperBySlug(post.paperSlug) : undefined;
+  const related = post.paperSlug ? await paperBySlug(post.paperSlug) : undefined;
   const more = siblings(post);
 
   return (

@@ -4,20 +4,20 @@ import { PostRow } from "@/components/PostRow";
 import {
   SERIES,
   pinnedPost,
-  publishedPapers,
   publishedPosts,
   seriesWithCounts
 } from "@/lib/content";
 import { fmtDate, readingTime } from "@/lib/formatting";
+import { publishedPapers } from "@/lib/papers";
 import { PaperCard } from "@/components/PaperCard";
 
 const SHELL = { maxWidth: 1160, margin: "0 auto" } as const;
 
-export default function HomePage() {
+export default async function HomePage() {
   const live = publishedPosts();
   const pinned = pinnedPost();
   const rest = live.filter((p) => p.slug !== pinned?.slug).slice(0, 4);
-  const papers = publishedPapers().slice(0, 3);
+  const papers = (await publishedPapers()).slice(0, 3);
   const series = seriesWithCounts();
   const pinnedSeries = SERIES.find((s) => s.name === pinned?.series);
 

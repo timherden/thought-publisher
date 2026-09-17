@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, Icon } from "@/lib/ds";
-import type { Paper } from "@/lib/content";
+import type { Paper } from "@/lib/papers";
 import { fmtDate } from "@/lib/formatting";
 
 /* The cover is page 1 of the PDF, rendered at save time. It is shown top-aligned rather

@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button, Callout, Card, Eyebrow, Input, Tag } from "@/lib/ds";
 import { readingTime } from "@/lib/formatting";
-import type { Paper, Post } from "@/lib/content";
+import type { Post } from "@/lib/content";
+import type { Paper } from "@/lib/papers";
 import { PapersPanel } from "./PapersPanel";
 
 type Draft = {
@@ -56,11 +57,15 @@ export function StudioClient({
   papers,
   series,
   canWrite,
+  papersWritable,
+  papersError,
 }: {
   posts: Post[];
   papers: Paper[];
   series: string[];
   canWrite: boolean;
+  papersWritable: boolean;
+  papersError: string;
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<"posts" | "papers">("posts");
@@ -474,7 +479,7 @@ export function StudioClient({
         </div>
       )}
 
-      {tab === "papers" && <PapersPanel papers={papers} canWrite={canWrite} />}
+      {tab === "papers" && <PapersPanel papers={papers} canWrite={papersWritable} loadError={papersError} />}
 
     </section>
   );

@@ -1,38 +1,40 @@
-import matter from "gray-matter";
 import { NextResponse } from "next/server";
-import { COVER_BASE, paperBySlug } from "@/lib/content";
+import { revalidatePath, revalidateTag } from "next/cache";
+import {
+  AirtableError,
+  configured,
+  createRecord,
+  deleteRecord,
+  findRecord,
+  PAPERS_TAG,
+  updateRecord,
+  uploadCover
+} from "@/lib/airtable";
 import { coverFromUrl, PdfError } from "@/lib/pdf";
-import { canWrite, commit, StoreError, usingGit } from "@/lib/store";
+import { slugify } from "@/lib/papers";
 
 /* Create, update and delete whitepapers.
 
-   A save is: fetch the PDF from its public URL, render page 1, then commit the markdown
-   and the cover together. mupdf is a wasm module, so this route is nodejs, not edge. */
+   A save writes the record to Airtable, renders page 1 of the PDF and uploads it as the
+   Cover attachment, then revalidates the pages that read it — so publishing is immediate
+   and does not rebuild the site. mupdf is wasm, so this route is nodejs, not edge. */
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
-
-const PAPERS_DIR = "content/papers";
-const COVERS_DIR = `public${COVER_BASE}`;
-
-const slugify = (s: string) =>
-  String(s || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 48);
-
-const mdPath = (slug: string) => `${PAPERS_DIR}/${slug}.md`;
-const coverPath = (slug: string) => `${COVERS_DIR}/${slug}.png`;
 
 function fail(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
 }
 
+function publish(slug: string) {
+  revalidateTag(PAPERS_TAG);
+  revalidatePath("/whitepapers");
+  revalidatePath(`/whitepapers/${slug}`);
+  revalidatePath("/");
+}
+
 export async function POST(req: Request) {
-  if (!canWrite()) {
-    return fail("Saving is not configured. Set GITHUB_TOKEN so Studio can commit.", 403);
-  }
+  if (!configured()) return fail("Set AIRTABLE_TOKEN so Studio can save.", 403);
 
   const body = await req.json().catch(() => null);
   if (!body) return fail("Malformed request.");
@@ -45,76 +47,83 @@ export async function POST(req: Request) {
 
   const originalSlug = body.originalSlug ? slugify(body.originalSlug) : "";
 
-  // Renaming onto an existing paper would silently overwrite it.
-  if (slug !== originalSlug && paperBySlug(slug)) {
-    return fail(`A whitepaper with the slug "${slug}" already exists.`, 409);
-  }
-
-  let rendered;
   try {
-    rendered = await coverFromUrl(String(body.pdfUrl ?? ""));
+    // Renaming onto an existing paper, or creating one whose title collides, would
+    // leave two records claiming the same public URL.
+    if (slug !== originalSlug && (await findRecord(slug))) {
+      return fail(`A whitepaper with the slug "${slug}" already exists.`, 409);
+    }
+
+    const existing = originalSlug ? await findRecord(originalSlug) : undefined;
+    if (originalSlug && !existing) return fail("That whitepaper no longer exists.", 404);
+
+    // Render before writing: a bad URL should not leave a half-made record behind.
+    let rendered;
+    try {
+      rendered = await coverFromUrl(String(body.pdfUrl ?? ""));
+    } catch (e) {
+      if (e instanceof PdfError) return fail(e.message, 422);
+      throw e;
+    }
+
+    const fields = {
+      Title: title,
+      Slug: slug,
+      "PDF URL": String(body.pdfUrl).trim(),
+      Pages: rendered.pages,
+      Summary: String(body.summary ?? "").trim(),
+      "Published Date":
+        String(body.date || "").slice(0, 10) || new Date().toISOString().slice(0, 10),
+      Status: body.status === "published" ? ("Published" as const) : ("Draft" as const)
+    };
+
+    const record = existing
+      ? await updateRecord(existing.id, fields)
+      : await createRecord(fields);
+
+    // Attachments need the record to exist first, so this is a second call.
+    await uploadCover(record.id, rendered.cover, `${slug}.png`);
+
+    publish(slug);
+    if (originalSlug && originalSlug !== slug) revalidatePath(`/whitepapers/${originalSlug}`);
+
+    return NextResponse.json({ slug, pages: rendered.pages, id: record.id });
   } catch (e) {
-    if (e instanceof PdfError) return fail(e.message, 422);
-    throw e;
-  }
-
-  const data = {
-    title,
-    pdfUrl: String(body.pdfUrl).trim(),
-    cover: `${COVER_BASE}/${slug}.png`,
-    pages: rendered.pages,
-    date: String(body.date || "").slice(0, 10) || new Date().toISOString().slice(0, 10),
-    status: body.status === "published" ? "published" : "draft",
-    summary: String(body.summary ?? "").trim()
-  };
-
-  const deletes =
-    originalSlug && originalSlug !== slug ? [mdPath(originalSlug), coverPath(originalSlug)] : [];
-
-  try {
-    const result = await commit(
-      [
-        { path: mdPath(slug), data: matter.stringify("", data) },
-        { path: coverPath(slug), data: rendered.cover }
-      ],
-      deletes,
-      `Studio: ${originalSlug ? "update" : "add"} whitepaper "${title}"`
-    );
-    return NextResponse.json({ slug, pages: rendered.pages, ...result });
-  } catch (e) {
-    if (e instanceof StoreError) return fail(e.message, 502);
+    if (e instanceof AirtableError) return fail(e.message, 502);
     throw e;
   }
 }
 
 export async function DELETE(req: Request) {
-  if (!canWrite()) return fail("Saving is not configured.", 403);
+  if (!configured()) return fail("Set AIRTABLE_TOKEN so Studio can save.", 403);
 
   const body = await req.json().catch(() => null);
   const slug = slugify(body?.slug ?? "");
   if (!slug) return fail("A slug is required.");
-  if (!paperBySlug(slug)) return fail("No such whitepaper.", 404);
 
   try {
-    const result = await commit([], [mdPath(slug), coverPath(slug)], `Studio: remove whitepaper "${slug}"`);
-    return NextResponse.json({ slug, ...result });
+    const record = await findRecord(slug);
+    if (!record) return fail("No such whitepaper.", 404);
+
+    await deleteRecord(record.id);
+    publish(slug);
+    return NextResponse.json({ slug });
   } catch (e) {
-    if (e instanceof StoreError) return fail(e.message, 502);
+    if (e instanceof AirtableError) return fail(e.message, 502);
     throw e;
   }
 }
 
-/* Studio calls this to preview a cover before committing. */
+/* Renders page 1 so Studio can show the cover before anything is written. */
 export async function PUT(req: Request) {
-  if (!canWrite()) return fail("Studio is not configured.", 403);
+  if (!configured()) return fail("Studio is not configured.", 403);
 
   const body = await req.json().catch(() => null);
   try {
     const { cover, pages } = await coverFromUrl(String(body?.pdfUrl ?? ""));
     return NextResponse.json({
       pages,
-      preview: `data:image/png;base64,${cover.toString("base64")}`,
-      mode: usingGit() ? "git" : "disk"
+      preview: `data:image/png;base64,${cover.toString("base64")}`
     });
   } catch (e) {
     if (e instanceof PdfError) return fail(e.message, 422);

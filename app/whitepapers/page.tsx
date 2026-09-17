@@ -1,9 +1,9 @@
 import { SectionHeading } from "@/lib/ds";
-import { publishedPapers } from "@/lib/content";
+import { publishedPapers } from "@/lib/papers";
 import { PaperCard } from "@/components/PaperCard";
 
-export default function WhitepapersPage() {
-  const papers = publishedPapers();
+export default async function WhitepapersPage() {
+  const papers = await publishedPapers();
 
   return (
     <section style={{ maxWidth: 1160, margin: "0 auto", padding: "64px 32px 0" }}>

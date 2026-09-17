@@ -1,6 +1,7 @@
 node_modules/
 .next/
 .vercel
+tsconfig.tsbuildinfo
 
 # Secrets: STUDIO_PASSWORD, GITHUB_TOKEN. Never commit these.
 .env

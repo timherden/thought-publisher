@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button, Callout, Card, Eyebrow, Icon, Input } from "@/lib/ds";
-import type { Paper } from "@/lib/content";
+import type { Paper } from "@/lib/papers";
 
 /* Whitepaper management. A paper is a title plus a public PDF URL; everything else —
    the cover, the page count — is derived server-side from the PDF itself. */
@@ -59,7 +59,15 @@ const toDraft = (p: Paper): Draft => ({
   isNew: false
 });
 
-export function PapersPanel({ papers, canWrite }: { papers: Paper[]; canWrite: boolean }) {
+export function PapersPanel({
+  papers,
+  canWrite,
+  loadError
+}: {
+  papers: Paper[];
+  canWrite: boolean;
+  loadError: string;
+}) {
   const router = useRouter();
   const [form, setForm] = useState<Draft>(blank());
   const [selected, setSelected] = useState("");
@@ -134,9 +142,7 @@ export function PapersPanel({ papers, canWrite }: { papers: Paper[]; canWrite: b
       setSelected(json.slug);
       setPreview(null);
       setNote(
-        json.mode === "git"
-          ? `Committed ${json.commit} — Vercel is rebuilding, the page is live in about a minute.`
-          : `Saved content/papers/${json.slug}.md and the cover.`
+        `Saved to Airtable. ${json.pages} ${json.pages === 1 ? "page" : "pages"}, cover uploaded — live now.`
       );
       router.refresh();
     } catch (e) {
@@ -147,7 +153,7 @@ export function PapersPanel({ papers, canWrite }: { papers: Paper[]; canWrite: b
   }
 
   async function remove() {
-    if (!confirm(`Delete "${form.title}"? This removes the markdown and the cover.`)) return;
+    if (!confirm(`Delete "${form.title}"? This removes its Airtable record and cover.`)) return;
     setBusy("delete");
     setError("");
     try {
@@ -177,7 +183,15 @@ export function PapersPanel({ papers, canWrite }: { papers: Paper[]; canWrite: b
         </div>
       </div>
 
-      {papers.length === 0 && !open && (
+      {loadError && (
+        <div style={{ margin: "16px 0" }}>
+          <Callout tone="caution" title="Could not read the base">
+            {loadError}
+          </Callout>
+        </div>
+      )}
+
+      {papers.length === 0 && !loadError && !open && (
         <p style={{ font: "var(--type-body-s)", color: "var(--ink-500)", padding: "24px 0" }}>
           No whitepapers yet. Add one with its public PDF link.
         </p>
@@ -281,7 +295,7 @@ export function PapersPanel({ papers, canWrite }: { papers: Paper[]; canWrite: b
                   label="Public PDF URL"
                   value={form.pdfUrl}
                   placeholder="https://your-bucket.s3.eu-central-1.amazonaws.com/paper.pdf"
-                  hint="The object must be publicly readable. The first page becomes the cover."
+                  hint="The object must be publicly readable. Page 1 becomes the cover."
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => patch({ pdfUrl: e.target.value })}
                 />
                 <div style={{ marginTop: 12 }}>
@@ -380,7 +394,7 @@ export function PapersPanel({ papers, canWrite }: { papers: Paper[]; canWrite: b
               {!canWrite && (
                 <div style={{ marginTop: 20 }}>
                   <Callout tone="caution" title="Saving is off">
-                    Set GITHUB_TOKEN so Studio can commit to the repo.
+                    Set AIRTABLE_TOKEN so Studio can write to the base.
                   </Callout>
                 </div>
               )}

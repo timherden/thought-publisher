@@ -2,12 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Button, Card, Eyebrow, Icon } from "@/lib/ds";
-import { paperBySlug, publishedPapers } from "@/lib/content";
+import { paperBySlug, publishedPapers } from "@/lib/papers";
 import { fmtDate } from "@/lib/formatting";
 import { PaperCover } from "@/components/PaperCard";
 
-export function generateStaticParams() {
-  return publishedPapers().map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  return (await publishedPapers()).map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -16,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const paper = paperBySlug(slug);
+  const paper = await paperBySlug(slug);
   if (!paper) return {};
   return {
     title: `${paper.title} — Tim Herden`,
@@ -27,7 +27,7 @@ export async function generateMetadata({
 
 export default async function PaperPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const paper = paperBySlug(slug);
+  const paper = await paperBySlug(slug);
   if (!paper || paper.status !== "published") notFound();
 
   return (
