@@ -21,19 +21,18 @@ export type Post = {
   body: string;
 };
 
-export type PaperEntry = { num: string; label: string; page: string };
-
+/* A whitepaper is a title and a PDF that lives in a public bucket. `cover` is the
+   first page, rendered at save time and committed to the repo; `pages` comes from the
+   same pass. Neither is typed by hand — see app/api/studio/papers. */
 export type Paper = {
   slug: string;
   title: string;
+  pdfUrl: string;
+  cover: string;
   pages: number;
   date: string;
   status: "published" | "draft";
   summary: string;
-  sourceLine: string;
-  relatedSlug: string;
-  relatedTitle: string;
-  contents: PaperEntry[];
 };
 
 export type Block =
@@ -46,7 +45,8 @@ export type Block =
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 const PAPERS_DIR = path.join(process.cwd(), "content", "papers");
 
-export const PDF_BASE = "/pdfs";
+/* Rendered first-page covers, committed next to the markdown. */
+export const COVER_BASE = "/covers";
 
 function readDir(dir: string) {
   if (!fs.existsSync(dir)) return [];
@@ -86,7 +86,8 @@ export function postBySlug(slug: string): Post | undefined {
   return allPosts().find((p) => p.slug === slug);
 }
 
-export function pinnedPost(): Post {
+/* Undefined until something is published — every caller renders an empty state. */
+export function pinnedPost(): Post | undefined {
   const live = publishedPosts();
   return live.find((p) => p.pinned) ?? live[0];
 }
@@ -95,20 +96,22 @@ export function allPapers(): Paper[] {
   return readDir(PAPERS_DIR)
     .map((file) => {
       const { data } = matter(fs.readFileSync(path.join(PAPERS_DIR, file), "utf8"));
+      const slug = file.replace(/\.md$/, "");
+      const cover = String(data.cover ?? `${COVER_BASE}/${slug}.png`);
       return {
-        slug: file.replace(/\.md$/, ""),
+        slug,
         title: String(data.title ?? "Untitled"),
+        pdfUrl: String(data.pdfUrl ?? ""),
+        /* Empty when the PNG is not on disk, so cards render their placeholder
+           rather than a broken image. */
+        cover: fs.existsSync(path.join(process.cwd(), "public", cover)) ? cover : "",
         pages: Number(data.pages ?? 0),
-        date: String(data.date ?? ""),
+        date: String(data.date ?? "").slice(0, 10),
         status: data.status === "draft" ? "draft" : "published",
-        summary: String(data.summary ?? ""),
-        sourceLine: String(data.sourceLine ?? ""),
-        relatedSlug: String(data.relatedSlug ?? ""),
-        relatedTitle: String(data.relatedTitle ?? ""),
-        contents: (data.contents ?? []) as PaperEntry[]
+        summary: String(data.summary ?? "")
       } as Paper;
     })
-    .sort((a, b) => (a.title < b.title ? -1 : 1));
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
 export function publishedPapers(): Paper[] {

@@ -1,14 +1,14 @@
-import fs from "node:fs";
-import path from "node:path";
 import matter from "gray-matter";
 import { NextResponse } from "next/server";
+import { postBySlug } from "@/lib/content";
+import { canWrite, commit, StoreError } from "@/lib/store";
 
-/* Writes a post back to content/posts as markdown with frontmatter.
-   Off unless the filesystem is writable — see STUDIO_WRITES in the README. */
+/* Writes a post back to content/posts as markdown with frontmatter — committed to the
+   repo in production, written to the working tree in development. See lib/store.ts. */
 
-const POSTS_DIR = path.join(process.cwd(), "content", "posts");
+export const runtime = "nodejs";
 
-const writable = () => process.env.STUDIO_WRITES === "on" || process.env.NODE_ENV === "development";
+const POSTS_DIR = "content/posts";
 
 const slugify = (s: string) =>
   s
@@ -18,40 +18,65 @@ const slugify = (s: string) =>
     .slice(0, 48);
 
 export async function POST(req: Request) {
-  if (!writable()) {
-    return NextResponse.json({ error: "Saving is disabled in this environment." }, { status: 403 });
+  if (!canWrite()) {
+    return NextResponse.json(
+      { error: "Saving is not configured. Set GITHUB_TOKEN so Studio can commit." },
+      { status: 403 }
+    );
   }
 
   const b = await req.json();
   const slug = slugify(b.slug || b.title || "");
   if (!slug) return NextResponse.json({ error: "A title or slug is required." }, { status: 400 });
 
-  const target = path.join(POSTS_DIR, `${slug}.md`);
-  const original = b.originalSlug ? path.join(POSTS_DIR, `${b.originalSlug}.md`) : null;
+  // Slugified: it lands in a delete path, and "../…" must not escape content/posts.
+  const originalSlug = b.originalSlug ? slugify(String(b.originalSlug)) : "";
 
-  // Preserve fields the editor does not expose.
-  let keep: Record<string, unknown> = {};
-  if (original && fs.existsSync(original)) {
-    keep = matter(fs.readFileSync(original, "utf8")).data;
+  // Renaming onto an existing essay, or creating one whose title collides, would
+  // overwrite it — and inherit its date and pinned flag, hiding the loss.
+  if (slug !== originalSlug && postBySlug(slug)) {
+    return NextResponse.json(
+      { error: `An essay with the slug "${slug}" already exists.` },
+      { status: 409 }
+    );
   }
+
+  // Preserve fields the editor does not expose. Parsed posts normalise absent
+  // frontmatter to "", so fall back on empty, not just on undefined.
+  const existing = originalSlug ? postBySlug(originalSlug) : undefined;
 
   const data = {
     title: b.title || "Untitled",
     tag: b.tag || "Field notes",
     series: b.series,
-    date: keep.date ?? new Date().toISOString().slice(0, 10),
+    date: existing?.date || new Date().toISOString().slice(0, 10),
     status: b.status === "published" ? "published" : "draft",
-    pinned: keep.pinned ?? false,
+    pinned: existing?.pinned ?? false,
     standfirst: b.standfirst ?? "",
-    sourceLine: keep.sourceLine ?? "Author's own, 2026.",
-    paperSlug: keep.paperSlug ?? "",
-    paperNote: keep.paperNote ?? ""
+    sourceLine: existing?.sourceLine || "Author's own, 2026.",
+    paperSlug: existing?.paperSlug ?? "",
+    paperNote: existing?.paperNote ?? ""
   };
 
-  fs.mkdirSync(POSTS_DIR, { recursive: true });
-  fs.writeFileSync(target, matter.stringify(`\n${(b.body ?? "").trim()}\n`, data), "utf8");
+  const deletes =
+    originalSlug && originalSlug !== slug ? [`${POSTS_DIR}/${originalSlug}.md`] : [];
 
-  if (original && original !== target && fs.existsSync(original)) fs.unlinkSync(original);
-
-  return NextResponse.json({ slug });
+  try {
+    const result = await commit(
+      [
+        {
+          path: `${POSTS_DIR}/${slug}.md`,
+          data: matter.stringify(`\n${(b.body ?? "").trim()}\n`, data)
+        }
+      ],
+      deletes,
+      `Studio: ${originalSlug ? "update" : "add"} essay "${data.title}"`
+    );
+    return NextResponse.json({ slug, ...result });
+  } catch (e) {
+    if (e instanceof StoreError) {
+      return NextResponse.json({ error: e.message }, { status: 502 });
+    }
+    throw e;
+  }
 }

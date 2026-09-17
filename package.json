@@ -10,6 +10,7 @@
   "dependencies": {
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.469.0",
+    "mupdf": "^1.28.1",
     "next": "^15.5.25",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button, Callout, Card, Eyebrow, Input, Tag } from "@/lib/ds";
 import { readingTime } from "@/lib/formatting";
 import type { Paper, Post } from "@/lib/content";
+import { PapersPanel } from "./PapersPanel";
 
 type Draft = {
   slug: string;
@@ -54,13 +55,11 @@ export function StudioClient({
   posts,
   papers,
   series,
-  pdfBase,
   canWrite,
 }: {
   posts: Post[];
   papers: Paper[];
   series: string[];
-  pdfBase: string;
   canWrite: boolean;
 }) {
   const router = useRouter();
@@ -116,7 +115,11 @@ export function StudioClient({
       setDirty(false);
       setSelected(json.slug);
       setForm((f) => ({ ...f, slug: json.slug, isNew: false }));
-      setMessage(`Saved content/posts/${json.slug}.md`);
+      setMessage(
+        json.mode === "git"
+          ? `Committed ${json.commit} — Vercel is rebuilding, the essay is live in about a minute.`
+          : `Saved content/posts/${json.slug}.md`,
+      );
       router.refresh();
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Save failed");
@@ -461,10 +464,8 @@ export function StudioClient({
                     tone="caution"
                     title="Saving is off in this environment"
                   >
-                    Studio writes to content/posts on disk, which only works
-                    when the app runs with a writable filesystem. Set
-                    STUDIO_WRITES=on locally, or switch the save route to commit
-                    through the GitHub API.
+                    Saving commits to the repo through the GitHub API. Set
+                    GITHUB_TOKEN to turn it on — see the README.
                   </Callout>
                 )}
               </div>
@@ -473,91 +474,8 @@ export function StudioClient({
         </div>
       )}
 
-      {tab === "papers" && (
-        <div style={{ marginTop: 32 }}>
-          <Eyebrow tone="muted">All whitepapers</Eyebrow>
-          <div
-            style={{ display: "flex", flexDirection: "column", marginTop: 8 }}
-          >
-            {papers.map((p) => (
-              <div
-                key={p.slug}
-                style={{
-                  display: "flex",
-                  gap: 20,
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  padding: "18px 0",
-                  borderBottom: "1px solid var(--border-hairline)",
-                }}
-              >
-                <span
-                  style={{
-                    flex: "0 0 8px",
-                    width: 8,
-                    height: 8,
-                    borderRadius: 999,
-                    background:
-                      p.status === "published"
-                        ? "var(--teal-500)"
-                        : "var(--amber-500)",
-                  }}
-                />
-                <div style={{ flex: "1 1 260px", minWidth: 0 }}>
-                  <span
-                    style={{
-                      font: "var(--type-body-s)",
-                      color: "var(--ink-900)",
-                      display: "block",
-                    }}
-                  >
-                    {p.title}
-                  </span>
-                  <span
-                    style={{
-                      font: "var(--font-mono)",
-                      fontSize: 12,
-                      color: "var(--ink-300)",
-                    }}
-                  >
-                    {pdfBase}/{p.slug}.pdf
-                  </span>
-                </div>
-                <span
-                  style={{
-                    flex: "0 0 auto",
-                    font: "var(--font-mono)",
-                    fontSize: 12,
-                    color: "var(--ink-500)",
-                  }}
-                >
-                  {p.pages} pages
-                </span>
-                <span
-                  style={{
-                    flex: "0 0 80px",
-                    font: "var(--font-mono)",
-                    fontSize: 12,
-                    color: "var(--ink-500)",
-                    textAlign: "right",
-                  }}
-                >
-                  {p.status === "published" ? "Live" : "Draft"}
-                </span>
-              </div>
-            ))}
-          </div>
+      {tab === "papers" && <PapersPanel papers={papers} canWrite={canWrite} />}
 
-          <div style={{ marginTop: 40, maxWidth: 620 }}>
-            <Callout tone="note" title="Where the PDF files live">
-              Each whitepaper serves the file at {pdfBase}/&lt;slug&gt;.pdf.
-              Commit the PDF to public/pdfs — Studio records the path, it does
-              not store the binary. Whitepaper frontmatter is edited directly in
-              content/papers.
-            </Callout>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

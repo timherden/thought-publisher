@@ -9,16 +9,17 @@ import {
   seriesWithCounts
 } from "@/lib/content";
 import { fmtDate, readingTime } from "@/lib/formatting";
+import { PaperCard } from "@/components/PaperCard";
 
 const SHELL = { maxWidth: 1160, margin: "0 auto" } as const;
 
 export default function HomePage() {
   const live = publishedPosts();
   const pinned = pinnedPost();
-  const rest = live.filter((p) => p.slug !== pinned.slug).slice(0, 4);
+  const rest = live.filter((p) => p.slug !== pinned?.slug).slice(0, 4);
   const papers = publishedPapers().slice(0, 3);
   const series = seriesWithCounts();
-  const pinnedSeries = SERIES.find((s) => s.name === pinned.series);
+  const pinnedSeries = SERIES.find((s) => s.name === pinned?.series);
 
   return (
     <>
@@ -62,6 +63,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      {pinned && (
       <section style={{ ...SHELL, padding: "0 32px" }}>
         <Eyebrow tone="muted" rule>
           Pinned
@@ -135,6 +137,7 @@ export default function HomePage() {
           </div>
         </Link>
       </section>
+      )}
 
       <section style={{ ...SHELL, padding: "64px 32px 0" }}>
         <SectionHeading
@@ -210,6 +213,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      {papers.length > 0 && (
       <section style={{ ...SHELL, padding: "88px 32px 0" }}>
         <SectionHeading
           eyebrow="Long-form"
@@ -228,62 +232,11 @@ export default function HomePage() {
           }}
         >
           {papers.map((paper) => (
-            <Link key={paper.slug} href={`/whitepapers/${paper.slug}`}>
-              <Card variant="hairline" padding="md" interactive accent="mint" style={{ height: "100%" }}>
-                <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: 14 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <Icon name="file-text" size={16} color="var(--ink-500)" />
-                    <span
-                      style={{
-                        font: "var(--font-mono)",
-                        fontSize: 12,
-                        color: "var(--ink-500)",
-                        letterSpacing: "0.04em"
-                      }}
-                    >
-                      {paper.pages} pages
-                    </span>
-                  </div>
-                  <h3
-                    style={{
-                      font: "var(--type-h3)",
-                      letterSpacing: "var(--tracking-heading)",
-                      margin: 0,
-                      textWrap: "pretty"
-                    }}
-                  >
-                    {paper.title}
-                  </h3>
-                  <p style={{ font: "var(--type-body-s)", color: "var(--ink-700)", margin: 0 }}>
-                    {paper.summary}
-                  </p>
-                  <div
-                    style={{
-                      marginTop: "auto",
-                      paddingTop: 16,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      borderTop: "1px solid var(--border-hairline)"
-                    }}
-                  >
-                    <Icon name="download" size={16} color="var(--teal-700)" />
-                    <span
-                      style={{
-                        font: "var(--type-ui)",
-                        letterSpacing: "0.04em",
-                        color: "var(--teal-700)"
-                      }}
-                    >
-                      Download PDF
-                    </span>
-                  </div>
-                </div>
-              </Card>
-            </Link>
+            <PaperCard key={paper.slug} paper={paper} />
           ))}
         </div>
       </section>
+      )}
     </>
   );
 }

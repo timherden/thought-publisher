@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Button, Card, Eyebrow, Icon } from "@/lib/ds";
-import { PDF_BASE, paperBySlug, publishedPapers } from "@/lib/content";
+import { paperBySlug, publishedPapers } from "@/lib/content";
+import { fmtDate } from "@/lib/formatting";
+import { PaperCover } from "@/components/PaperCard";
 
 export function generateStaticParams() {
   return publishedPapers().map((p) => ({ slug: p.slug }));
@@ -16,15 +18,17 @@ export async function generateMetadata({
   const { slug } = await params;
   const paper = paperBySlug(slug);
   if (!paper) return {};
-  return { title: `${paper.title} — Tim Herden`, description: paper.summary };
+  return {
+    title: `${paper.title} — Tim Herden`,
+    description: paper.summary,
+    openGraph: { images: paper.cover ? [paper.cover] : [] }
+  };
 }
 
 export default async function PaperPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const paper = paperBySlug(slug);
   if (!paper || paper.status !== "published") notFound();
-
-  const href = `${PDF_BASE}/${paper.slug}.pdf`;
 
   return (
     <section style={{ maxWidth: 1160, margin: "0 auto", padding: "40px 32px 0" }}>
@@ -45,7 +49,9 @@ export default async function PaperPage({ params }: { params: Promise<{ slug: st
 
       <div style={{ display: "flex", gap: 56, flexWrap: "wrap", marginTop: 40 }}>
         <div style={{ flex: "1 1 420px", minWidth: 0 }}>
-          <Eyebrow tone="muted">Whitepaper · {paper.pages} pages</Eyebrow>
+          <Eyebrow tone="muted">
+            Whitepaper · {paper.pages} {paper.pages === 1 ? "page" : "pages"}
+          </Eyebrow>
           <h1
             style={{
               font: "var(--type-h1)",
@@ -57,48 +63,32 @@ export default async function PaperPage({ params }: { params: Promise<{ slug: st
           >
             {paper.title}
           </h1>
-          <p
-            style={{
-              font: "var(--type-body-l)",
-              color: "var(--ink-700)",
-              margin: "24px 0 0",
-              maxWidth: "62ch"
-            }}
-          >
-            {paper.summary}
-          </p>
 
-          <div style={{ marginTop: 40, paddingTop: 32, borderTop: "1px solid var(--border-hairline)" }}>
-            <Eyebrow tone="ink">What is inside</Eyebrow>
-            <div style={{ display: "flex", flexDirection: "column", marginTop: 18 }}>
-              {paper.contents.map((c) => (
-                <div
-                  key={c.num}
-                  style={{
-                    display: "flex",
-                    gap: 20,
-                    alignItems: "baseline",
-                    padding: "14px 0",
-                    borderBottom: "1px solid var(--border-hairline)"
-                  }}
-                >
-                  <span style={{ flex: "0 0 28px", font: "var(--font-mono)", fontSize: 12, color: "var(--ink-300)" }}>
-                    {c.num}
-                  </span>
-                  <span style={{ flex: "1 1 auto", font: "var(--type-body)", color: "var(--ink-900)" }}>
-                    {c.label}
-                  </span>
-                  <span style={{ flex: "0 0 auto", font: "var(--font-mono)", fontSize: 12, color: "var(--ink-500)" }}>
-                    {c.page}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {paper.summary && (
+            <p
+              style={{
+                font: "var(--type-body-l)",
+                color: "var(--ink-700)",
+                margin: "24px 0 0",
+                maxWidth: "62ch"
+              }}
+            >
+              {paper.summary}
+            </p>
+          )}
 
           <p style={{ font: "var(--type-caption)", color: "var(--ink-500)", margin: "24px 0 0" }}>
-            {paper.sourceLine}
+            Published {fmtDate(paper.date)}
           </p>
+
+          <div style={{ maxWidth: 520, marginTop: 40 }}>
+            <Card variant="hairline" padding="none" style={{ overflow: "hidden" }}>
+              <PaperCover paper={paper} />
+            </Card>
+            <p style={{ font: "var(--type-caption)", color: "var(--ink-500)", margin: "12px 0 0" }}>
+              First page.
+            </p>
+          </div>
         </div>
 
         <div style={{ flex: "0 1 340px" }}>
@@ -113,7 +103,7 @@ export default async function PaperPage({ params }: { params: Promise<{ slug: st
                   letterSpacing: "0.04em"
                 }}
               >
-                PDF · {paper.pages} pages
+                PDF · {paper.pages} {paper.pages === 1 ? "page" : "pages"}
               </span>
             </div>
             <h3 style={{ font: "var(--type-h3)", letterSpacing: "var(--tracking-heading)", margin: "0 0 10px" }}>
@@ -122,26 +112,12 @@ export default async function PaperPage({ params }: { params: Promise<{ slug: st
             <p style={{ font: "var(--type-body-s)", color: "var(--ink-700)", margin: "0 0 20px" }}>
               No email, no form. Print it, quote it, pass it on.
             </p>
-            <a href={href} download>
+            <a href={paper.pdfUrl} target="_blank" rel="noreferrer">
               <Button variant="accent" fullWidth icon="download" iconPosition="left">
                 Download PDF
               </Button>
             </a>
-            <p style={{ font: "var(--font-mono)", fontSize: 12, color: "var(--ink-500)", margin: "14px 0 0" }}>
-              {href}
-            </p>
           </Card>
-
-          {paper.relatedSlug && (
-            <div style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid var(--border-hairline)" }}>
-              <Eyebrow tone="muted">Related essay</Eyebrow>
-              <div style={{ marginTop: 14 }}>
-                <Link href={`/writing/${paper.relatedSlug}`} style={{ font: "var(--type-body)" }}>
-                  {paper.relatedTitle} →
-                </Link>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </section>
