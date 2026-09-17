@@ -1,0 +1,27 @@
+:root{
+  --space-2xs:4px;
+  --space-xs:8px;
+  --space-sm:12px;
+  --space-md:16px;
+  --space-lg:24px;
+  --space-xl:32px;
+  --space-2xl:48px;
+  --space-3xl:64px;
+  --space-4xl:96px;
+  --space-5xl:128px;
+
+  /* Page geometry — the guide format the brand was drawn from */
+  --page-width:816px;          /* 8.5in at 96dpi */
+  --page-height:1056px;        /* 11in */
+  --page-margin:72px;
+  --page-margin-wide:96px;
+  --gutter:32px;
+
+  /* Component rhythm */
+  --control-height-sm:32px;
+  --control-height:40px;
+  --control-height-lg:48px;
+  --control-padding-x:18px;
+  --block-gap:var(--space-lg);
+  --section-gap:var(--space-3xl);
+}

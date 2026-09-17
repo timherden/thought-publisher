@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Integration readiness",
+    "note": "The eight weeks before the project starts, and what to write down in them."
+  },
+  {
+    "name": "Data contracts",
+    "note": "Who agrees to what a field means, and who has to be asked before it changes."
+  },
+  {
+    "name": "Field notes",
+    "note": "Shorter pieces on things I have watched go wrong, and occasionally right."
+  }
+]

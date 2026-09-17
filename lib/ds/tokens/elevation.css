@@ -1,0 +1,13 @@
+:root{
+  /* Shadows are apologetic. Cards on paper get a hairline, not a shadow;
+     shadows are reserved for things that genuinely float (a page over a desk, a menu). */
+  --shadow-none:none;
+  --shadow-hairline:0 0 0 1px var(--border-hairline);
+  --shadow-1:0 1px 2px rgba(18,20,20,.06);
+  --shadow-2:0 2px 8px -2px rgba(18,20,20,.10);
+  --shadow-3:0 12px 32px -8px rgba(18,20,20,.14);
+  --shadow-page:0 18px 48px -16px rgba(18,20,20,.22);
+  --shadow-inset-hairline:inset 0 0 0 1px var(--border-hairline);
+  --overlay-scrim:rgba(18,20,20,.42);
+  --blur-veil:saturate(140%) blur(12px); /* @kind other */
+}

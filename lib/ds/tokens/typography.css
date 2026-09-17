@@ -1,0 +1,56 @@
+:root{
+  /* Sizes — long-form first: the body size is generous, the scale is loose at the top */
+  --text-display-xl:76px;
+  --text-display-l:56px;
+  --text-h1:40px;
+  --text-h2:30px;
+  --text-h3:23px;
+  --text-body-l:19px;
+  --text-body:17px;
+  --text-body-s:15px;
+  --text-caption:13px;
+  --text-eyebrow:12px;
+  --text-stat:64px;
+  --text-stat-s:40px;
+
+  /* Line heights */
+  --leading-tight:1.04;
+  --leading-snug:1.16;
+  --leading-heading:1.24;
+  --leading-body:1.62;
+  --leading-loose:1.78;
+
+  /* Weights — Jost is set light-to-medium; body copy never goes below 400 */
+  --weight-light:300;
+  --weight-regular:400;
+  --weight-medium:500;
+  --weight-semibold:600;
+  --weight-bold:700;
+
+  /* Tracking */
+  --tracking-display:-0.02em;
+  --tracking-heading:-0.01em;
+  --tracking-body:0em;
+  --tracking-eyebrow:0.16em;
+  --tracking-wide:0.06em;
+
+  /* Measure */
+  --measure-narrow:46ch;
+  --measure:62ch;
+  --measure-wide:76ch;
+
+  /* Composed roles */
+  --type-display-xl:var(--weight-medium) var(--text-display-xl)/var(--leading-tight) var(--font-display);
+  --type-display-l:var(--weight-medium) var(--text-display-l)/var(--leading-snug) var(--font-display);
+  --type-h1:var(--weight-medium) var(--text-h1)/var(--leading-heading) var(--font-display);
+  --type-h2:var(--weight-medium) var(--text-h2)/var(--leading-heading) var(--font-display);
+  --type-h3:var(--weight-semibold) var(--text-h3)/var(--leading-heading) var(--font-display);
+  --type-body-l:var(--weight-regular) var(--text-body-l)/var(--leading-body) var(--font-body);
+  --type-body:var(--weight-regular) var(--text-body)/var(--leading-body) var(--font-body);
+  --type-body-s:var(--weight-regular) var(--text-body-s)/var(--leading-body) var(--font-body);
+  --type-caption:var(--weight-regular) var(--text-caption)/var(--leading-body) var(--font-body);
+  --type-eyebrow:var(--weight-semibold) var(--text-eyebrow)/1 var(--font-ui);
+  --type-ui:var(--weight-medium) var(--text-body-s)/1 var(--font-ui);
+  --type-stat:var(--weight-medium) var(--text-stat)/1 var(--font-display);
+  --type-script:var(--weight-bold) 1.15em/1 var(--font-script);
+}

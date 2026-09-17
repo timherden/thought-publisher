@@ -1,0 +1,14 @@
+:root{
+  --radius-none:0px;
+  --radius-sm:3px;
+  --radius-md:6px;
+  --radius-lg:10px;
+  --radius-pill:999px;
+
+  --border-width:1px;
+  --border-width-strong:2px;
+  --rule-width:1px;          /* the hairline that sits under every running head */
+  --rule-width-heavy:3px;    /* the short bar above a section title */
+  --highlight-height:14px;   /* marker bar height behind a heading word */
+  --marker-height:9px;       /* underline swash height */
+}

@@ -1,0 +1,12 @@
+/* Webfonts. All three families are Google Fonts (no licensed binaries were supplied
+   with the brand material — see readme.md “Font substitutions”). The @import below is the
+   font-face source of truth; cards and kits may also <link> the same URL. */
+@import url("https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..700;1,400&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=Caveat:wght@500..700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root{
+  --font-display:"Jost","Futura","Century Gothic",system-ui,sans-serif;
+  --font-ui:"Jost",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Source Sans Pro",system-ui,sans-serif;
+  --font-script:"Caveat","Segoe Script",cursive;
+  --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+}

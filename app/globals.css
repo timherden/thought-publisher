@@ -1,0 +1,44 @@
+@import "../lib/ds/tokens/fonts.css";
+@import "../lib/ds/tokens/colors.css";
+@import "../lib/ds/tokens/typography.css";
+@import "../lib/ds/tokens/spacing.css";
+@import "../lib/ds/tokens/shape.css";
+@import "../lib/ds/tokens/elevation.css";
+@import "../lib/ds/tokens/motion.css";
+@import "../lib/ds/tokens/base.css";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--text-primary);
+  font: var(--type-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--text-link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--text-link-hover);
+}
+
+::selection {
+  background: var(--highlight-amber);
+  color: var(--ink-900);
+}
+
+textarea,
+input {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

@@ -1,0 +1,69 @@
+:root{
+  /* Ink — neutral ramp, slightly cool-green cast so it sits with the teal */
+  --ink-900:#121414;
+  --ink-700:#33393a;
+  --ink-500:#5e6668;
+  --ink-300:#93999a;
+  --ink-200:#c7cbcb;
+  --ink-100:#e4e6e5;
+  --ink-050:#f1f2f1;
+
+  /* Paper */
+  --paper:#ffffff;
+  --paper-warm:#faf9f6;
+  --paper-cool:#f5f7f7;
+
+  /* Teal — primary accent */
+  --teal-700:#2f6e66;
+  --teal-500:#4c9a8e;
+  --teal-300:#a8d3cb;
+  --teal-100:#d9ebe7;
+
+  /* Amber — secondary accent, used for the marker underline and stat rules */
+  --amber-600:#a8731a;
+  --amber-500:#e9b44c;
+  --amber-300:#f6d79a;
+  --amber-100:#fbeed2;
+
+  /* Coral — tertiary accent, sparing: warnings, one-off arcs, dissent */
+  --coral-600:#b8443a;
+  --coral-500:#e8695e;
+  --coral-300:#f4b3ad;
+  --coral-100:#fbe0dd;
+
+  /* Semantic text */
+  --text-primary:var(--ink-900);
+  --text-secondary:var(--ink-500);
+  --text-muted:var(--ink-300);
+  --text-inverse:var(--paper);
+  --text-accent:var(--teal-700);
+  --text-link:var(--teal-700);
+  --text-link-hover:var(--ink-900);
+
+  /* Semantic surfaces */
+  --surface-page:var(--paper);
+  --surface-sunken:var(--paper-cool);
+  --surface-card:var(--paper);
+  --surface-accent:var(--teal-100);
+  --surface-accent-warm:var(--amber-100);
+  --surface-inverse:var(--ink-900);
+
+  /* Highlights — the horizontal bar behind a heading, the marker under a word */
+  --highlight-mint:var(--teal-300);
+  --highlight-amber:var(--amber-300);
+  --highlight-coral:var(--coral-300);
+
+  /* Lines */
+  --border-hairline:rgba(18,20,20,.12);
+  --border-hairline-strong:rgba(18,20,20,.24);
+  --border-strong:var(--ink-900);
+  --rule-accent:var(--teal-500);
+
+  /* Status */
+  --status-positive:var(--teal-700);
+  --status-caution:var(--amber-600);
+  --status-critical:var(--coral-600);
+
+  /* Focus */
+  --focus-ring:var(--teal-500);
+}

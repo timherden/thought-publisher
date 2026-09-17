@@ -1,0 +1,13 @@
+/* Minimal element defaults so a bare page already reads as the brand. */
+body{background:var(--surface-page);color:var(--text-primary);font:var(--type-body);-webkit-font-smoothing:antialiased;text-wrap:pretty}
+a{color:var(--text-link);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;transition:color var(--duration-fast) var(--ease-out)}
+a:hover{color:var(--text-link-hover)}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:var(--weight-medium);letter-spacing:var(--tracking-heading);margin:0}
+h1{font-size:var(--text-h1);line-height:var(--leading-heading)}
+h2{font-size:var(--text-h2);line-height:var(--leading-heading)}
+h3{font-size:var(--text-h3);font-weight:var(--weight-semibold);line-height:var(--leading-heading)}
+p{margin:0}
+strong{font-weight:var(--weight-semibold)}
+hr{border:0;border-top:var(--rule-width) solid var(--border-hairline);margin:var(--space-lg) 0}
+::selection{background:var(--highlight-amber);color:var(--ink-900)}
+:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
