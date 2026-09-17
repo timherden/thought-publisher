@@ -19,7 +19,7 @@ export const configured = () => Boolean(process.env.AIRTABLE_TOKEN);
 
 export class AirtableError extends Error {}
 
-export type Attachment = { id: string; url: string; filename: string; type: string };
+export type Attachment = { id: string; url?: string; filename?: string; type?: string };
 
 export type Record = {
   id: string;
@@ -160,8 +160,13 @@ export async function deleteRecord(id: string): Promise<void> {
 
 /* Attachments cannot be set by value through the records API — Airtable either fetches
    a URL you supply, or takes the bytes on this separate content endpoint. The bytes are
-   what we have, and they are never public anywhere else, so we upload them. 5 MB cap. */
-export async function uploadCover(recordId: string, png: Buffer, filename: string) {
+   what we have, and they are never public anywhere else, so we upload them. 5 MB cap.
+
+   uploadAttachment APPENDS. Left alone, every re-save would stack another cover on the
+   record forever, and readers taking the first attachment would keep showing the oldest
+   one after the PDF changed. So we upload, then trim the field to just what we added —
+   in that order, so the record is never briefly without a cover. */
+export async function setCover(recordId: string, png: Buffer, filename: string) {
   if (png.length > 5 * 1024 * 1024) {
     throw new AirtableError("The rendered cover is larger than Airtable's 5 MB limit.");
   }
@@ -180,5 +185,19 @@ export async function uploadCover(recordId: string, png: Buffer, filename: strin
     }
   );
   if (!res.ok) await fail(res);
-  return res.json();
+
+  /* This endpoint keys `fields` by field ID, not field name, unlike the records API.
+     Take the one attachment list it returns rather than guessing which spelling. */
+  const returned = (await res.json())?.fields ?? {};
+  const attachments: Attachment[] =
+    returned.Cover ?? (Object.values(returned).find(Array.isArray) as Attachment[]) ?? [];
+
+  const newest = attachments[attachments.length - 1];
+  if (!newest) throw new AirtableError("Airtable accepted the cover but returned no attachment.");
+
+  // Keeping a subset by id is the only way to remove attachments; ids cannot be added.
+  if (attachments.length > 1) {
+    await updateRecord(recordId, { Cover: [{ id: newest.id }] as Attachment[] });
+  }
+  return newest;
 }

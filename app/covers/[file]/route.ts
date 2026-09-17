@@ -18,7 +18,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ file: s
   if (!slug) return new Response("Not found", { status: 404 });
 
   const record = await findRecord(slug).catch(() => undefined);
-  const cover = record?.fields.Cover?.[0];
+  // Newest, not first: a re-saved record can briefly hold more than one.
+  const all = record?.fields.Cover ?? [];
+  const cover = all[all.length - 1];
   if (!cover?.url) return new Response("Not found", { status: 404 });
 
   const upstream = await fetch(cover.url, { cache: "no-store" });

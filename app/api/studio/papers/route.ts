@@ -7,8 +7,8 @@ import {
   deleteRecord,
   findRecord,
   PAPERS_TAG,
-  updateRecord,
-  uploadCover
+  setCover,
+  updateRecord
 } from "@/lib/airtable";
 import { coverFromUrl, PdfError } from "@/lib/pdf";
 import { slugify } from "@/lib/papers";
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       : await createRecord(fields);
 
     // Attachments need the record to exist first, so this is a second call.
-    await uploadCover(record.id, rendered.cover, `${slug}.png`);
+    await setCover(record.id, rendered.cover, `${slug}.png`);
 
     publish(slug);
     if (originalSlug && originalSlug !== slug) revalidatePath(`/whitepapers/${originalSlug}`);
