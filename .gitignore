@@ -1,3 +1,8 @@
 node_modules/
 .next/
 .vercel
+
+# Secrets: STUDIO_PASSWORD, GITHUB_TOKEN. Never commit these.
+.env
+.env.*
+!.env.example
