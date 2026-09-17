@@ -5,7 +5,7 @@ import { Icon } from "./Icon.jsx";
 
 const boxes = { sm: 32, md: 40, lg: 48 };
 
-export function IconButton({ icon, label, size = "md", variant = "secondary", disabled = false, onClick, style, ...rest }) {
+export function IconButton({ icon, label, size = "md", variant = "secondary", disabled = false, onClick = (/** @type {any} */ _e) => {}, style = {}, ...rest }) {
   const [hover, setHover] = React.useState(false);
   const box = boxes[size];
   const tones = {

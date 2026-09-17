@@ -5,7 +5,7 @@ import React from "react";
 /* Two brand-defining text treatments:
    - marker: a hand-drawn-feeling swash under one word (amber by default)
    - bar: a flat band of colour behind a heading, sitting on the baseline */
-export function Highlight({ children, variant = "marker", color = "amber", script = false, style }) {
+export function Highlight({ children, variant = "marker", color = "amber", script = false, style = {} }) {
   const paint = { amber: "var(--highlight-amber)", mint: "var(--highlight-mint)", coral: "var(--highlight-coral)" }[color];
   const scriptStyle = script ? { fontFamily: "var(--font-script)", fontWeight: "var(--weight-bold)", fontSize: "1.18em", lineHeight: 0.9 } : null;
   if (variant === "bar") {

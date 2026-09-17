@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export function Card({ children, variant = "hairline", padding = "lg", interactive = false, accent, onClick, style }) {
+export function Card({ children, variant = "hairline", padding = "lg", interactive = false, accent = "", onClick = (/** @type {any} */ _e) => {}, style = {} }) {
   const [hover, setHover] = React.useState(false);
   const pad = { none: 0, sm: "var(--space-md)", md: "var(--space-lg)", lg: "var(--space-xl)" }[padding];
   const variants = {

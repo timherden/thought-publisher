@@ -12,7 +12,7 @@ const pascal = (n) =>
     .map((s) => s[0].toUpperCase() + s.slice(1))
     .join("");
 
-export function Icon({ name, size = 18, strokeWidth = 1.5, color = "currentColor", className = "", style }) {
+export function Icon({ name, size = 18, strokeWidth = 1.5, color = "currentColor", className = "", style = {} }) {
   const Cmp = icons[pascal(name)];
   const box = { display: "inline-flex", width: size, height: size, flex: "0 0 auto", ...style };
   if (!Cmp) return <span aria-hidden="true" className={className} style={box} />;

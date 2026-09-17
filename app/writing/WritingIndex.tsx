@@ -3,14 +3,15 @@
 import { useMemo, useState } from "react";
 import { Button, Input, Tag } from "@/lib/ds";
 import { PostRow } from "@/components/PostRow";
-import { readingTime, type Post } from "@/lib/content";
+import { readingTime } from "@/lib/formatting";
+import type { Post } from "@/lib/content";
 
 const LABEL: React.CSSProperties = {
   font: "var(--type-eyebrow)",
   letterSpacing: "var(--tracking-eyebrow)",
   textTransform: "uppercase",
   color: "var(--ink-300)",
-  width: 56
+  width: 56,
 };
 
 export function WritingIndex({
@@ -18,7 +19,7 @@ export function WritingIndex({
   tags,
   series,
   initialTag,
-  initialSeries
+  initialSeries,
 }: {
   posts: Post[];
   tags: string[];
@@ -36,7 +37,9 @@ export function WritingIndex({
       const tagOk = tag === "All" || p.tag === tag;
       const serOk = ser === "All" || p.series === ser;
       const qOk =
-        !q || p.title.toLowerCase().includes(q) || p.standfirst.toLowerCase().includes(q);
+        !q ||
+        p.title.toLowerCase().includes(q) ||
+        p.standfirst.toLowerCase().includes(q);
       return tagOk && serOk && qOk;
     });
   }, [posts, tag, ser, query]);
@@ -46,9 +49,16 @@ export function WritingIndex({
     values: string[],
     current: string,
     set: (v: string) => void,
-    uppercase: boolean
+    uppercase: boolean,
   ) => (
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+    <div
+      style={{
+        display: "flex",
+        gap: 8,
+        flexWrap: "wrap",
+        alignItems: "center",
+      }}
+    >
       <span style={LABEL}>{label}</span>
       {["All", ...values].map((v) => (
         <button
@@ -75,10 +85,17 @@ export function WritingIndex({
           alignItems: "flex-end",
           margin: "40px 0 0",
           paddingBottom: 20,
-          borderBottom: "1px solid var(--border-hairline)"
+          borderBottom: "1px solid var(--border-hairline)",
         }}
       >
-        <div style={{ flex: "1 1 420px", display: "flex", flexDirection: "column", gap: 14 }}>
+        <div
+          style={{
+            flex: "1 1 420px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
+          }}
+        >
           {row("Topic", tags, tag, setTag, true)}
           {row("Series", series, ser, setSer, false)}
         </div>
@@ -94,13 +111,23 @@ export function WritingIndex({
 
       <div style={{ display: "flex", flexDirection: "column" }}>
         {filtered.map((p) => (
-          <PostRow key={p.slug} post={p} meta={`${p.series} · ${readingTime(p.body)}`} />
+          <PostRow
+            key={p.slug}
+            post={p}
+            meta={`${p.series} · ${readingTime(p.body)}`}
+          />
         ))}
       </div>
 
       {filtered.length === 0 && (
         <div style={{ padding: "48px 0" }}>
-          <p style={{ font: "var(--type-body)", color: "var(--ink-500)", margin: "0 0 20px" }}>
+          <p
+            style={{
+              font: "var(--type-body)",
+              color: "var(--ink-500)",
+              margin: "0 0 20px",
+            }}
+          >
             Nothing matches that.
           </p>
           <Button

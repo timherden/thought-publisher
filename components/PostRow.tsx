@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { fmtDate, readingTime, type Post } from "@/lib/content";
+import { fmtDate, readingTime } from "@/lib/formatting";
+import type { Post } from "@/lib/content";
 
 /* One row in an index list: date, title, standfirst, and a right-hand meta note. */
 export function PostRow({ post, meta }: { post: Post; meta?: string }) {

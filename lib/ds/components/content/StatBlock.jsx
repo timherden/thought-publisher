@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export function StatBlock({ value, caption, source, accent = "mint", align = "left", size = "lg", style }) {
+export function StatBlock({ value, caption = "", source = "", accent = "mint", align = "left", size = "lg", style = {} }) {
   const bar = { mint: "var(--teal-300)", amber: "var(--amber-500)", coral: "var(--coral-500)", ink: "var(--ink-900)" }[accent];
   return (
     <figure style={{ margin: 0, textAlign: align, maxWidth: 260, ...style }}>

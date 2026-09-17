@@ -4,15 +4,14 @@ import type { Metadata } from "next";
 import { Button, Eyebrow, Icon, Tag } from "@/lib/ds";
 import { Blocks } from "@/lib/blocks";
 import {
-  fmtDate,
   mdToBlocks,
   paperBySlug,
   postBySlug,
   publishedPosts,
-  readingTime,
   siblings,
   toc
 } from "@/lib/content";
+import { fmtDate, readingTime } from "@/lib/formatting";
 
 export function generateStaticParams() {
   return publishedPosts().map((p) => ({ slug: p.slug }));

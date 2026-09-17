@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export function PullQuote({ children, attribution, role, accent = "mint", style }) {
+export function PullQuote({ children, attribution = "", role = "", accent = "mint", style = {} }) {
   const bar = { mint: "var(--teal-300)", amber: "var(--amber-300)", coral: "var(--coral-300)" }[accent];
   return (
     <blockquote style={{ margin: 0, paddingLeft: "var(--space-lg)", borderLeft: `3px solid ${bar}`, maxWidth: "var(--measure-narrow)", ...style }}>

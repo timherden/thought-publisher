@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export function FigureCaption({ label, children, source, style }) {
+export function FigureCaption({ label = "", children, source = "", style = {} }) {
   return (
     <div style={{ borderTop: "var(--rule-width) solid var(--border-hairline)", paddingTop: "var(--space-xs)", maxWidth: "var(--measure-narrow)", ...style }}>
       {label && <span style={{ font: "var(--type-eyebrow)", letterSpacing: "var(--tracking-eyebrow)", textTransform: "uppercase", color: "var(--teal-700)", marginRight: "var(--space-xs)" }}>{label}</span>}

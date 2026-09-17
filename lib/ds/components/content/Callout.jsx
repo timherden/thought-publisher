@@ -10,7 +10,7 @@ const tones = {
   counterpoint: { surface: "var(--coral-100)", line: "var(--coral-300)", accent: "var(--coral-600)", icon: "message-square" },
 };
 
-export function Callout({ title, children, tone = "note", icon, style }) {
+export function Callout({ title, children, tone = "note", icon = "", style = {} }) {
   const t = tones[tone];
   return (
     <aside style={{

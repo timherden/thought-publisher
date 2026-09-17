@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export function Divider({ variant = "hairline", spacing = "lg", label, style }) {
+export function Divider({ variant = "hairline", spacing = "lg", label = "", style = {} }) {
   const gap = { none: 0, sm: "var(--space-sm)", md: "var(--space-md)", lg: "var(--space-lg)", xl: "var(--space-xl)" }[spacing];
   const lines = {
     hairline: { borderTop: "var(--rule-width) solid var(--border-hairline)" },

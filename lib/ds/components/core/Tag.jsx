@@ -11,7 +11,7 @@ const tones = {
   outline: { background: "transparent", color: "var(--ink-700)", border: "1px solid var(--border-hairline-strong)" },
 };
 
-export function Tag({ children, tone = "neutral", uppercase = true, style }) {
+export function Tag({ children, tone = "neutral", uppercase = true, style = {} }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", height: 24, padding: "0 10px",

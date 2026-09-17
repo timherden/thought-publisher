@@ -26,8 +26,8 @@ const hovers = {
 };
 
 export function Button({
-  children, variant = "primary", size = "md", icon, iconPosition = "right",
-  disabled = false, fullWidth = false, type = "button", onClick, style, ...rest
+  children, variant = "primary", size = "md", icon = "", iconPosition = "right",
+  disabled = false, fullWidth = false, type = "button", onClick = (/** @type {any} */ _e) => {}, style = {}, ...rest
 }) {
   const [hover, setHover] = React.useState(false);
   const [press, setPress] = React.useState(false);

@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export function Input({ label, hint, error, value, onChange, placeholder, type = "text", size = "md", disabled = false, id, style }) {
+export function Input({ label = "", hint = "", error = "", value, onChange = (/** @type {any} */ _e) => {}, placeholder = "", type = "text", size = "md", disabled = false, id = "", style = {} }) {
   const [focus, setFocus] = React.useState(false);
   const inputId = id || React.useId();
   return (

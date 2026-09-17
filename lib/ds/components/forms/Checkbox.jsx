@@ -3,7 +3,7 @@
 import React from "react";
 import { Icon } from "../core/Icon.jsx";
 
-export function Checkbox({ label, description, checked = false, onChange, disabled = false, id, style }) {
+export function Checkbox({ label = "", description = "", checked = false, onChange = (/** @type {any} */ _e) => {}, disabled = false, id = "", style = {} }) {
   const boxId = id || React.useId();
   return (
     <label htmlFor={boxId} style={{ display: "flex", gap: "var(--space-sm)", alignItems: "flex-start", cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.45 : 1, ...style }}>

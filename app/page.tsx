@@ -3,13 +3,12 @@ import { Button, Card, Eyebrow, Highlight, SectionHeading, Tag, Icon } from "@/l
 import { PostRow } from "@/components/PostRow";
 import {
   SERIES,
-  fmtDate,
   pinnedPost,
   publishedPapers,
   publishedPosts,
-  readingTime,
   seriesWithCounts
 } from "@/lib/content";
+import { fmtDate, readingTime } from "@/lib/formatting";
 
 const SHELL = { maxWidth: 1160, margin: "0 auto" } as const;
 

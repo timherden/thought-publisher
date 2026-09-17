@@ -3,7 +3,7 @@
 import React from "react";
 import { Eyebrow } from "../content/Eyebrow.jsx";
 
-export function SectionHeading({ eyebrow, children, standfirst, band = "mint", level = 2, align = "left", style }) {
+export function SectionHeading({ eyebrow = "", children, standfirst = "", band = "mint", level = 2, align = "left", style = {} }) {
   const Tag = "h" + level;
   const paint = { mint: "var(--highlight-mint)", amber: "var(--highlight-amber)", coral: "var(--highlight-coral)", none: null }[band];
   return (
